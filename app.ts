@@ -10,6 +10,7 @@ const projectsRouter = require("./routes/projectRoutes");
 const tasksRouter = require("./routes/taskRoutes");
 const teamsRouter = require("./routes/teamRoutes");
 const usersRouter = require("./routes/userRoutes");
+const globalErrorHandler = require("./controllers/errorControllers");
 
 // TYPE CHECKER
 import { Request, Response, NextFunction } from "express";
@@ -49,6 +50,9 @@ app.use("/api/v1/users", usersRouter);
 app.use("/api/v1/messages", messagesRouter);
 app.use("/api/v1/notes", notesRouter);
 app.use("/api/v1/teams", teamsRouter);
+
+// ERROR HANDLER
+app.use(globalErrorHandler);
 
 // app.use('/api/v1/tours', tourRouter);
 // app.use('/api/v1/users', userRouter);
