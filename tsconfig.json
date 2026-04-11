@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    /* تنظیمات زبان و نسخه */
+    "target": "ES2020" /* نسخه جاوااسکریپت خروجی */,
+    "module": "commonjs" /* بسیار مهم: استفاده از CommonJS برای require/module.exports */,
+    "lib": [
+      "ES2020"
+    ] /* کتابخانه‌های استاندارد برای استفاده از ویژگی‌های جدید JS */,
+
+    /* تنظیمات خروجی */
+    "outDir": "./dist" /* پوشه‌ای که فایل‌های کامپایل شده در آن قرار می‌گیرند */,
+    "rootDir": "./" /* ریشه پروژه که فایل‌های ts در آن هستند */,
+    "removeComments": true /* حذف کامنت‌ها از فایل نهایی */,
+    "strict": true /* فعال کردن حالت سخت‌گیرانه برای بررسی دقیق‌تر خطاها */,
+
+    /* تنظیمات ماژول‌ها */
+    "sourceMap": true,
+    "esModuleInterop": true /* امکان ایمپورت پکیج‌های CommonJS به صورت پیش‌فرض */,
+    "skipLibCheck": true /* نادیده گرفتن بررسی تایپ فایل‌های کتابخانه‌ای (افزایش سرعت) */,
+    "forceConsistentCasingInFileNames": true /* جلوگیری از خطا به دلیل بزرگی و کوچکی حروف نام فایل‌ها */,
+
+    /* تنظیمات چک کردن بیشتر کد*/
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": false /* این برای چک کردن اینه که ورودی تابع حتما استفاده بشه*/,
+    "experimentalDecorators": true,
+    "noEmitOnError": true,
+    "allowUnreachableCode": false,
+    "strictNullChecks": false
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.d.ts" /* شامل تمام فایل‌های TypeScript در پروژه */
+  ],
+  "exclude": ["node_modules" /* نادیده گرفتن پوشه node_modules */]
+}
