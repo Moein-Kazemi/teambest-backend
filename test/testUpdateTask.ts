@@ -1,8 +1,6 @@
-interface UpdateData {
-  status: string;
-}
+import { ITask } from "../interfaces/taskDocument";
 
-async function testUpdateTour(url: string, data: UpdateData) {
+async function testUpdateTour(url: string, data: Partial<ITask>) {
   try {
     // name: "طبیعت سبز شمال" =>
     // "طبیعت سبز و زیبای شمال"
@@ -29,10 +27,12 @@ async function testUpdateTour(url: string, data: UpdateData) {
     }
   }
 }
+const updateData: Partial<ITask> = {
+  title: "فیلم برداری از یاسمن اقلیدی",
+};
 
 const result = testUpdateTour(
-  "http://127.0.0.1:5000/api/v1/tasks/69da84ef08544f3d082a1bf2",
-  {
-    status: "در حال انجام",
-  },
+  "http://127.0.0.1:5000/api/v1/tasks/69e347d6a97644535c32bdcf",
+  updateData,
 );
+console.log(result);

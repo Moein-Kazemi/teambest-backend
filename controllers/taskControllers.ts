@@ -1,8 +1,10 @@
 const catchAsyncFn = require("./../utils/catchAsyncFn");
 const Task = require("./../models/taskModel");
 const AppError = require("./../utils/classes/AppError");
+const TaskSyncService = require("./../services/TaskSyncService");
 
 import { Request, Response, NextFunction } from "express";
+import { TaskDocument } from "../interfaces/taskDocument";
 
 exports.getAllTasks = catchAsyncFn(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -37,12 +39,12 @@ exports.getTask = catchAsyncFn(
 
 exports.createTask = catchAsyncFn(
   async (req: Request, res: Response, next: NextFunction) => {
-    const newTask = await Task.create({
-      title: req.body.title,
-      description: req.body.description,
-      status: req.body.status,
-    });
-
+    const newTask = await TaskSyncService.createTaskAndSync(
+      req.body.projectId,
+      req.body.stageId,
+      req.body,
+      next,
+    );
     res.status(201).json({
       message: "success",
       data: {
@@ -54,10 +56,18 @@ exports.createTask = catchAsyncFn(
 
 exports.updateTask = catchAsyncFn(
   async (req: Request, res: Response, next: NextFunction) => {
-    const updateTask = await Task.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    // const updateTask = await Task.findByIdAndUpdate(req.params.id, req.body, {
+    //   new: true,
+    //   runValidators: true,
+    // });
+    let updateTask;
+    if (typeof req.params.id === "string") {
+      updateTask = await TaskSyncService.updateTaskAndSync(
+        req.params.id,
+        req.body,
+        next,
+      );
+    }
 
     res.status(200).json({
       status: "success",
@@ -70,7 +80,10 @@ exports.updateTask = catchAsyncFn(
 
 exports.deleteTask = catchAsyncFn(
   async (req: Request, res: Response, next: NextFunction) => {
-    const deleteTask = await Task.findByIdAndDelete(req.params.id);
+    let deleteTask: TaskDocument | void;
+    if (typeof req.params.id === "string") {
+      deleteTask = await TaskSyncService.deleteTaskAndSync(req.params.id, next);
+    }
 
     if (!deleteTask) {
       return next(new AppError("can't find Task with that Id.", 404));

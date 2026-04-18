@@ -1,17 +1,6 @@
-interface TaskProp {
-  title: string;
-  description: string;
-  projectInfo?: { _id: string; name: string };
-  assigneeTo?: { _id: string; name: string };
-  //   remove if the project info hase stage field
-  stageInfo?: { _id: string; name: string };
-  status: string;
-  startDate?: Date;
-  endDate?: Date;
-  createdAt?: Date;
-}
+import { ITask } from "../interfaces/taskDocument";
 
-async function testPostTour(url: string, data: TaskProp) {
+async function testPostTask(url: string, data: ITask) {
   try {
     const response = await fetch(url, {
       method: "POST",
@@ -38,10 +27,15 @@ async function testPostTour(url: string, data: TaskProp) {
   }
 }
 
-const newTask: TaskProp = {
-  title: "تست ساختن",
-  description: "توضیحات تست ساختن",
-  status: "انجام نشده",
+const newTask: ITask = {
+  projectId: "69df5fc47621324e98a37b81",
+  stageId: "69df5fc47621324e98a37b83",
+  title: "عکاسی محصولات ایواز",
+  description: "کالکشن جدید ایواز عکاسی بشود و به سایت اضافه بشود",
+  assigneeTo: {
+    assigneeId: "69c3b3b5718f20553ca7b8eb",
+    assigneeName: "یاسمن کاظمی",
+  },
 };
 
-testPostTour("http://127.0.0.1:5000/api/v1/tasks", newTask);
+testPostTask("http://127.0.0.1:5000/api/v1/tasks", newTask);
