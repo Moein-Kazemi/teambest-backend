@@ -1,9 +1,19 @@
-const { createProject } = require("./../controllers/projectControllers");
+const {
+  getAllProject,
+  createProject,
+  getProject,
+  updateProject,
+  deleteProject,
+} = require("./../controllers/projectControllers");
 
 const projectsRouter = require("express").Router();
 
-projectsRouter.route("/").get().post(createProject);
+projectsRouter.route("/").get(getAllProject).post(createProject);
 
-projectsRouter.route("/:id").get().patch().delete();
+projectsRouter
+  .route("/:id")
+  .get(getProject)
+  .patch(updateProject)
+  .delete(deleteProject);
 
 module.exports = projectsRouter;

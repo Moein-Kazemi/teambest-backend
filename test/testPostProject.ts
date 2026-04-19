@@ -1,25 +1,10 @@
-interface ITaskAssigneement {
-  taskId?: string;
-  taskTitle: string;
-  assigneeId: string;
-  assigneeName: string;
-}
+import { IProject } from "../interfaces/projectDocument";
+import { ITask } from "../interfaces/taskDocument";
 
-interface IStage {
-  name: string;
-  order: number;
-  taskAssignments: ITaskAssigneement[];
-}
-
-interface PostProp {
-  name: string;
-  description?: string;
-  teamId: string;
-  ownerId: string;
-  stages: IStage[];
-}
-
-async function testPostTour(url: string, data: PostProp) {
+async function testPostTour(
+  url: string,
+  data: { projectData: IProject; taskData: ITask[] },
+) {
   try {
     const response = await fetch(url, {
       method: "POST",
@@ -46,41 +31,60 @@ async function testPostTour(url: string, data: PostProp) {
   }
 }
 
-const newProject: PostProp = {
-  name: "دیجیتال مارکتینگ دیوید جونز",
-  description: "رشد برند فرانسوی کیف برای رسیدن به فروش بالاتر اینترنتی",
-  teamId: "69c3b3b5717f20553ca4b4eb",
-  ownerId: "69c3b3b5717f20553ca4b4ee",
-  stages: [
+const newProject: { projectData: IProject; taskData: ITask[] } = {
+  projectData: {
+    name: "دیجیتال مارکتینگ جین شاپ",
+    description:
+      "انقلابی در فروش اینترنتی جین شاپ و رساندن فروش آن از صفر به مثبت 100 قلم در ماه.",
+    teamId: "69df5fc47621324e98a37b93",
+    ownerId: "69df5fc47621324e98a37b90",
+    stages: [
+      {
+        name: "طراحی سایت جین شاپ",
+        order: 1,
+        taskAssignments: [
+          {
+            taskTitle: "ایجاد سایت ورد پرسی",
+            assigneeId: "69df5fc47621324e98a37b88",
+            assigneeName: "مبینا غلامی",
+          },
+        ],
+      },
+      {
+        name: "مدیریت اینستاگرام جین شاپ",
+        order: 2,
+        taskAssignments: [
+          {
+            taskTitle: "پست و استوری روزانه",
+            assigneeId: "69df5fc47621324e98a37b89",
+            assigneeName: "علی شاهینی",
+          },
+        ],
+      },
+    ],
+  },
+  taskData: [
     {
-      name: "طراحی سایت دیوید جونز",
-      order: 1,
-      taskAssignments: [
-        {
-          taskId: "69c3b3b5717f20553ca4b8eb",
-          taskTitle: "طراحی UI و کد نویسی فرانت اند",
-          assigneeId: "69c3b3b5718f20553ca4b4eb",
-          assigneeName: "معین کاظمی",
-        },
-        {
-          taskId: "69c3b3b5717f20553ca4b8eb",
-          taskTitle: "طراحی UI و کد نویسی فرانت اند",
-          assigneeId: "69c3b3b5718f20553ca4b4eb",
-          assigneeName: "محمد عباسی",
-        },
-      ],
+      projectId: "",
+      stageId: "",
+      title: "ایجاد سایت ورد پرسی",
+      description:
+        "ساخت سایت ورد پرس با استفاده از وودمارت و ووکامرس و المنتور به شکلی بسیار زیبا.",
+      assigneeTo: {
+        assigneeId: "69df5fc47621324e98a37b52",
+        assigneeName: "مبینا غلامی",
+      },
     },
     {
-      name: "تولید محتوا در اینستاگرام",
-      order: 2,
-      taskAssignments: [
-        {
-          taskId: "69c3b3b5717f20555ca4b4eb",
-          taskTitle: "تولید پست و استوری دیوید جونز",
-          assigneeId: "69c3b3b5717f20554ca4b4eb",
-          assigneeName: "غزاله میرآبادی",
-        },
-      ],
+      projectId: "",
+      stageId: "",
+      title: "پست و استوری روزانه",
+      description:
+        "روزانه باید یک پست و چهار استوری برای پیج جین شاپ گذاشته شود.",
+      assigneeTo: {
+        assigneeId: "69df5fc47621324e98a37b40",
+        assigneeName: "علی شاهینی",
+      },
     },
   ],
 };

@@ -5,14 +5,21 @@ const TaskSyncService = require("./../services/TaskSyncService");
 
 import { Request, Response, NextFunction } from "express";
 import { TaskDocument } from "../interfaces/taskDocument";
+import ApiFeatures from "../utils/classes/ApiFeatures";
 
 exports.getAllTasks = catchAsyncFn(
   async (req: Request, res: Response, next: NextFunction) => {
-    const tasks = await Task.find();
+    const features = new ApiFeatures<TaskDocument>(Task.find(), req.query)
+      .filter()
+      .sort()
+      .limitFields()
+      .pagenate();
+
+    const tasks = await features.query;
 
     res.status(200).json({
       status: "success",
-      resluts: tasks.length,
+      results: tasks.length,
       data: {
         tasks,
       },

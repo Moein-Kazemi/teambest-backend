@@ -8,7 +8,10 @@ const Task = require("./../models/taskModel");
 // TYPE CHECKER
 import { NextFunction } from "express";
 import { ITask, TaskDocument } from "../interfaces/taskDocument";
-import { ITaskAssignment } from "../interfaces/projectDocument";
+import {
+  ITaskAssignment,
+  ProjectDocument,
+} from "../interfaces/projectDocument";
 import { Types } from "mongoose";
 
 module.exports = class TaskSyncService {
@@ -25,9 +28,27 @@ module.exports = class TaskSyncService {
       return next(new AppError("تسک از قبل وجود دارد", 400));
 
     // 1) CREATE TASK
-    const task = await Task.create(taskData);
+    const task: TaskDocument = await Task.create(taskData);
 
-    // 2) ADD TO STAGES IN THE PROJECT
+    // 2) CHECK IF THE PROJECT HAS THIS TASK?
+    //////// CHECK IF HAS THE TASKID DON'T DO ANY THING , BUT IF DONT HAVE TASKID DELETE OLD ONE AND PUSH NEW ONE
+    const projectWithCreatedTask: ProjectDocument = await Project.findOne({
+      "stages.taskAssignments.taskTitle": task.title,
+    });
+    if (projectWithCreatedTask) {
+      // DELETE THE TASK DOSEN'T HAVE TASKID
+      await Project.updateOne(
+        { _id: projectId },
+        {
+          $pull: {
+            "stages.$[].taskAssignments": {
+              taskId: { $exists: false },
+            },
+          },
+        },
+      );
+    }
+    // 3) PUSH TASK INTO PROJECT.
     await Project.findOneAndUpdate(
       { _id: projectId, "stages._id": stageId },
       {

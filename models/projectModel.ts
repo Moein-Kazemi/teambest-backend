@@ -22,18 +22,31 @@ const stageSchema = new Schema<IStage>(
   {
     name: { type: String, required: true },
     order: { type: Number, required: true, default: 1 },
-    taskAssignments: { type: [taskAssignmentSchema], default: [] },
+    taskAssignments: {
+      type: [taskAssignmentSchema],
+      default: [],
+      required: true,
+    },
   },
   { _id: true },
 );
 
 const projectSchema = new Schema<IProject>(
   {
-    name: { type: String, required: true, trim: true, unique: true },
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+      unique: [true, "نام پروژه نباید تکراری باشد."],
+    },
     description: { type: String, default: "" },
-    teamId: { type: Schema.Types.ObjectId, ref: "Team", required: true },
+    teamId: {
+      type: Schema.Types.ObjectId,
+      ref: "Team",
+      required: [true, "project must have teamId."],
+    },
     ownerId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    stages: { type: [stageSchema], default: [] },
+    stages: { type: [stageSchema], default: [], required: true },
   },
   { timestamps: true },
 );

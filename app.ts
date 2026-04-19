@@ -44,8 +44,8 @@ app.get("/", (req: Request, res: Response) => {
   });
 });
 /////// ROUTES
-app.use("/api/v1/tasks", tasksRouter);
-app.use("/api/v1/projects", projectsRouter);
+app.use("/api/v1/tasks", tasksRouter); // ✅
+app.use("/api/v1/projects", projectsRouter); // proccessing...
 app.use("/api/v1/users", usersRouter);
 app.use("/api/v1/messages", messagesRouter);
 app.use("/api/v1/notes", notesRouter);

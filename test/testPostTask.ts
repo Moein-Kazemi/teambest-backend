@@ -28,13 +28,14 @@ async function testPostTask(url: string, data: ITask) {
 }
 
 const newTask: ITask = {
-  projectId: "69df5fc47621324e98a37b81",
-  stageId: "69df5fc47621324e98a37b83",
-  title: "عکاسی محصولات ایواز",
-  description: "کالکشن جدید ایواز عکاسی بشود و به سایت اضافه بشود",
+  projectId: "69e4b09b4d942109702cc3a8",
+  stageId: "69e4b09b4d942109702cc3a9",
+  title: "کد نویسی مدل هوش مصنوعی اختصاصی برای وب سایت",
+  description:
+    "یک پلاگین شامل مدل هوش مصنوعی اختصاصی که بر اساس سلیقه مشتری به آنها بهترین شلوار را برای خرید معرفی میکند.",
   assigneeTo: {
-    assigneeId: "69c3b3b5718f20553ca7b8eb",
-    assigneeName: "یاسمن کاظمی",
+    assigneeId: "69c3b3b5718f20553ca7b9eb",
+    assigneeName: "علی کامروا",
   },
 };
 

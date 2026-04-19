@@ -1,21 +1,71 @@
 const catchAsyncFn = require("./../utils/catchAsyncFn");
 const Project = require("./../models/projectModel");
+const ProjectSyncService = require("./../services/ProjectSyncService");
+import ApiFeatures from "../utils/classes/ApiFeatures";
 
 // TYPE CHECKER
 import { Request, Response, NextFunction } from "express";
+import { ProjectDocument } from "../interfaces/projectDocument";
+
+exports.getAllProject = catchAsyncFn(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const features = new ApiFeatures<ProjectDocument>(Project.find(), req.query)
+      .filter()
+      .sort()
+      .limitFields()
+      .pagenate();
+
+    const projects = await features.query;
+
+    res.status(200).json({
+      status: "success",
+      results: projects.length,
+      data: {
+        projects,
+      },
+    });
+  },
+);
 
 exports.createProject = catchAsyncFn(
   async (req: Request, res: Response, next: NextFunction) => {
-    const body = req.body;
-    console.log(body);
-    const newProject = await Project.create(req.body);
+    // CREATE PROJECT AND CREATE TASK
+    const project = await ProjectSyncService.createProjectAndSync(
+      req.body.projectData.teamId,
+      req.body.projectData,
+      req.body.taskData,
+      next,
+    );
 
     res.status(201).json({
-      message: "success",
+      status: "success",
       data: {
-        project: newProject,
+        project,
       },
     });
-    // const newTask = await TaskSyncService.createTaskAndUpdateProject();
+  },
+);
+exports.getProject = catchAsyncFn(
+  async (req: Request, res: Response, next: NextFunction) => {
+    res.status(200).json({
+      status: "success",
+      data: {},
+    });
+  },
+);
+exports.updateProject = catchAsyncFn(
+  async (req: Request, res: Response, next: NextFunction) => {
+    res.status(200).json({
+      status: "success",
+      data: {},
+    });
+  },
+);
+exports.deleteProject = catchAsyncFn(
+  async (req: Request, res: Response, next: NextFunction) => {
+    res.status(200).json({
+      status: "success",
+      data: {},
+    });
   },
 );
