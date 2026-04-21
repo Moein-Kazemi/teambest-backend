@@ -1,6 +1,7 @@
 const catchAsyncFn = require("./../utils/catchAsyncFn");
 const Project = require("./../models/projectModel");
 const ProjectSyncService = require("./../services/ProjectSyncService");
+const AppError = require("./../utils/classes/AppError");
 import ApiFeatures from "../utils/classes/ApiFeatures";
 
 // TYPE CHECKER
@@ -47,20 +48,44 @@ exports.createProject = catchAsyncFn(
 );
 exports.getProject = catchAsyncFn(
   async (req: Request, res: Response, next: NextFunction) => {
+    const project = await Project.findById(req.params.id);
+
     res.status(200).json({
       status: "success",
-      data: {},
+      data: {
+        project,
+      },
     });
   },
 );
+
 exports.updateProject = catchAsyncFn(
   async (req: Request, res: Response, next: NextFunction) => {
+    const projectData = req.body.projectData;
+    const tasksData = req.body.taskData || null;
+    let updateProject;
+
+    if (typeof req.params.id === "string") {
+      updateProject = await ProjectSyncService.updateProjectAndSync(
+        req.params.id,
+        projectData,
+        tasksData,
+        next,
+      );
+    }
+    if (!updateProject) {
+      next(new AppError("پروژه مورد نظر آپدیت نشد.", 400));
+    }
+
     res.status(200).json({
       status: "success",
-      data: {},
+      data: {
+        project: updateProject,
+      },
     });
   },
 );
+
 exports.deleteProject = catchAsyncFn(
   async (req: Request, res: Response, next: NextFunction) => {
     res.status(200).json({

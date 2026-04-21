@@ -3,6 +3,9 @@ const app = express();
 const morgan = require("morgan");
 const cors = require("cors");
 
+// CLASSES
+const AppError = require("./utils/classes/AppError");
+
 // ROUTER
 const messagesRouter = require("./routes/messageRoutes");
 const notesRouter = require("./routes/noteRoutes");
@@ -38,11 +41,6 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-app.get("/", (req: Request, res: Response) => {
-  res.status(200).json({
-    message: "you are request to the main direcory of express server teambest",
-  });
-});
 /////// ROUTES
 app.use("/api/v1/tasks", tasksRouter); // ✅
 app.use("/api/v1/projects", projectsRouter); // proccessing...
@@ -51,28 +49,12 @@ app.use("/api/v1/messages", messagesRouter);
 app.use("/api/v1/notes", notesRouter);
 app.use("/api/v1/teams", teamsRouter);
 
-// ERROR HANDLER
+// INVALID ROUTE ERROR HANDLER
+
+app.all("*", (req: Request, res: Response, next: NextFunction) => {
+  next(new AppError(`not found the ${req.originalUrl} route!`, 404));
+});
+
 app.use(globalErrorHandler);
-
-// app.use('/api/v1/tours', tourRouter);
-// app.use('/api/v1/users', userRouter);
-
-// app.all('*', (req: Request, res: Response, next: NextFunction) => {
-//   // res.status(404).json({
-//   //   status: 'fail',
-//   //   message: `not found the ${req.originalUrl} route!`,
-//   // });
-
-//   next(new AppError(`not found the ${req.originalUrl} route!`, 400));
-// });
-
-// app.use(globalErrorHandler);
-
-// TEST
-// app.get("/", (req: Request, res: Response) => {
-//   res.status(200).json({
-//     message: "you are request to the main directory",
-//   });
-// });
 
 module.exports = app;

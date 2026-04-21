@@ -9,7 +9,13 @@ const Project = require("./../models/projectModel");
 // TYPE CHECKER
 import { NextFunction } from "express";
 import { ITask } from "../interfaces/taskDocument";
-import { IProject, ProjectDocument } from "../interfaces/projectDocument";
+import {
+  IProject,
+  IStage,
+  ProjectDocument,
+} from "../interfaces/projectDocument";
+import { Result } from "../interfaces/compareStagesResults";
+import isObjectChanged from "../utils/isObjectChanged";
 
 module.exports = class ProjectSyncService {
   // ==================== CREATE PROJECT AND UPDATE TASKS====================
@@ -58,128 +64,159 @@ module.exports = class ProjectSyncService {
     }
 
     return project;
+    // 5) ADD PROJECT REFERENCE TO TEAM
+    // await Team.findByIdAndUpdate(teamId, {
+    //   $push: {
+    //     projects: {
+    //       projectId: project._id,
+    //       projectName: project.name,
+    //       ownerId: project.ownerId,
+    //     },
+    //   },
+    // });
   }
 
-  // 5) ADD PROJECT REFERENCE TO TEAM
-  // await Team.findByIdAndUpdate(teamId, {
-  //   $push: {
-  //     projects: {
-  //       projectId: project._id,
-  //       projectName: project.name,
-  //       ownerId: project.ownerId,
-  //     },
-  //   },
-  // });
+  // ==================== UPDATE PROJECT AND UPDATE TASKS ====================
+  static async updateProjectAndSync(
+    projectId: string,
+    updateProjectData: Partial<IProject>,
+    tasksData: ITask[] | null,
+    next: NextFunction,
+  ): Promise<ProjectDocument | void> {
+    // WE CAN'T UPDATE TEAMID AND OWENERID UPDATEAT AND CREATEDAT
+    if (
+      updateProjectData.teamId ||
+      updateProjectData.ownerId ||
+      updateProjectData.updatedAt ||
+      updateProjectData.createdAt
+    ) {
+      return next(
+        new AppError(
+          "you can't update teamId or ownerId or updateAt or createdAt",
+          400,
+        ),
+      );
+    }
 
-  // ==================== UPDATE TASK AND UPDATE PROJECT ====================
-  // static async updateTaskAndSync(
-  //   taskId: string,
-  //   updateData: Partial<ITask>,
-  //   next: NextFunction,
-  // ): Promise<TaskDocument | void> {
-  //   // 1) FIND OLD TAKS
-  //   const oldTask = await Task.findById(taskId);
-  //   if (!oldTask) return next(new AppError("تسک پیدا نشد", 404));
-  //   const stageId = oldTask.stageId.toString();
+    // 1) FIND OLD PROJECT
+    const oldProject = await Project.findById(projectId);
+    if (!oldProject)
+      return next(new AppError("پروژه مورد نظر برای آپدیت شدن پیدا نشد.", 404));
 
-  //   // UPDATE TASK
-  //   const updatedTask = await Task.findByIdAndUpdate(taskId, updateData, {
-  //     new: true,
-  //     runValidators: true,
-  //   });
+    // UPDATE PROJECT
+    const updatedProject = await Project.findByIdAndUpdate(
+      projectId,
+      updateProjectData,
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
 
-  //   // If update.title or update.assigneeTo does exist compare that to old one
-  //   if (updateData.title || updateData.assigneeTo) {
-  //     // 2) IF TITLE OR ASSIGNEENAME OR ASSIGENID IS CHANGE , UPDATE PROJECT
-  //     if (
-  //       updateData?.title !== oldTask.title ||
-  //       updateData.assigneeTo?.assigneeName !==
-  //         oldTask.assigneeTo?.assigneeName ||
-  //       updateData.assigneeTo?.assigneeId?.toString() !==
-  //         oldTask.assigneeTo?.assigneeId.toString()
-  //     ) {
-  //       await Project.updateOne(
-  //         {
-  //           "stages.taskAssignments.taskId": new Types.ObjectId(taskId),
-  //         },
-  //         {
-  //           $set: {
-  //             "stages.$[stage].taskAssignments.$[task].taskTitle":
-  //               updateData?.title || oldTask?.title,
-  //             "stages.$[stage].taskAssignments.$[task].assigneeName":
-  //               updateData?.assigneeTo?.assigneeName ||
-  //               oldTask?.assigneeTo?.assigneeName,
-  //             "stages.$[stage].taskAssignments.$[task].assigneeId":
-  //               updateData?.assigneeTo?.assigneeId ||
-  //               oldTask?.assigneeTo?.assigneeId,
-  //           },
-  //         },
-  //         {
-  //           arrayFilters: [
-  //             { "stage._id": new Types.ObjectId(stageId) },
-  //             { "task.taskId": new Types.ObjectId(taskId) },
-  //           ],
-  //         },
-  //       );
-  //     }
-  //   }
-  //   // IF STAGE IS CHANGE AND ONE TASK GO FROM ONE STAGE TO ANOTHER STAGE.
-  //   if (
-  //     updateData.stageId &&
-  //     updateData.stageId.toString() !== oldTask.stageId?.toString()
-  //   ) {
-  //     await this.moveTaskBetweenStages(
-  //       oldTask.projectId.toString(),
-  //       oldTask.stageId.toString(),
-  //       updateData.stageId.toString(),
-  //       taskId,
-  //       next,
-  //     );
-  //   }
+    // IF STAGES UPDATED WE HAVE TO SYNC WITH TASKS
+    if (updateProjectData.stages) {
+      const oldStages: IStage[] = oldProject.stages;
+      const newStages: IStage[] = updatedProject.stages;
 
-  //   return updatedTask;
-  // }
+      const result = this.compareStages(oldStages, newStages);
 
-  // // ==================== MOVE TASK FROM ONE STAGE TO ANOTHER STAGE ====================
-  // static async moveTaskBetweenStages(
-  //   projectId: string,
-  //   fromStageId: string,
-  //   toStageId: string,
+      // IF THERE ARE ADDED STAGES
+      if (result.added.length !== 0) {
+        for (const stage of result.added) {
+          for (const task of stage.taskAssignments) {
+            // FILTER TASK BASE ON THE TITLE IN THE TASKASSIGNMENT
+            const taskData = tasksData.find(
+              (inTask) => inTask.title === task.taskTitle,
+            );
 
-  //   taskId: string,
-  //   next: NextFunction,
-  // ): Promise<void> {
-  //   const project = await Project.findById(projectId);
-  //   if (!project) return next(new AppError("پروژه مورد نظر یافت نشد", 404));
+            if (taskData) {
+              // MUTATE TASKS DATA WITH NEW PROJECTID AND STAGEID
+              taskData.projectId = updatedProject._id;
+              taskData.stageId = stage._id;
+              // CREATE TASK INTO TASK COLLECTIONS BASE ON RESULT OF THE FILTER TASK.
+              await TaskSyncService.createTaskAndSync(
+                taskData.projectId.toString(),
+                taskData.stageId.toString(),
+                taskData,
+                next,
+              );
+            }
+          }
+        }
+      } else if (result.removed.length !== 0) {
+        // IF THERE ARE REMOVED STAGES
+        for (const stage of result.removed) {
+          for (const task of stage.taskAssignments) {
+            // FILTER TASK BASE ON THE TITLE IN THE TASKASSIGNMENT
+            const taskData = tasksData.find(
+              (inTask) => inTask.title === task.taskTitle,
+            );
 
-  //   // find from stage and taskAssignment
-  //   const fromStage = project.stages.id(fromStageId);
-  //   if (!fromStage) return next(new AppError("استیج مورد نظر پیدا نشد.", 404));
+            if (taskData) {
+              // MUTATE TASKS DATA WITH NEW PROJECTID AND STAGEID
+              taskData.projectId = updatedProject._id;
+              taskData.stageId = stage._id;
 
-  //   const taskAssignment = fromStage?.taskAssignments.find(
-  //     (t: ITaskAssignment) => t.taskId.toString() === taskId,
-  //   );
-  //   if (!taskAssignment)
-  //     return next(new AppError("تسک در استیج مورد نظر پیدا نشد.", 404));
+              // DELETE TASK INTO TASK COLLECTION BASE ON REMOVED ARRAY AND FILTER.
+              await TaskSyncService.deleteTaskAndSync(
+                task.taskId.toString(),
+                next,
+              );
+            }
+          }
+        }
+      } else if (result.modified.length !== 0) {
+        return next(
+          new AppError(
+            "در این مرحله شما نمیتوانید استیچ های قبلی را تغییر دهید . فقط میتوانید استیج های قبلی را حذف یا استیج جدید ایجاد کنید.",
+            400,
+          ),
+        );
+      }
+    }
 
-  //   // delete task from sourse stage
-  //   await Project.findOneAndUpdate(
-  //     { _id: projectId, "stages._id": fromStageId },
-  //     {
-  //       $pull: {
-  //         "stages.$.taskAssignments": { taskId: new Types.ObjectId(taskId) },
-  //       },
-  //     },
-  //   );
+    return updatedProject;
+  }
+  // // ==================== COMPARE STAGES ====================
+  static compareStages(oldStages: IStage[], newStages: IStage[]): Result {
+    const result: Result = {
+      added: [],
+      removed: [],
+      modified: [],
+    };
 
-  //   //  add taks do destenation stage
-  //   await Project.findOneAndUpdate(
-  //     { _id: projectId, "stages._id": toStageId },
-  //     {
-  //       $push: { "stages.$.taskAssignments": taskAssignment },
-  //     },
-  //   );
-  // }
+    // 1) FIND ADDED ITEM
+    for (const newItem of newStages) {
+      const oldItem = oldStages.find(
+        (old) => old._id?.toString() === newItem._id?.toString(),
+      );
+
+      // IF OLDITEM DOSE NOT EXIST IT MEANS ADD NEW STAGES
+      if (!oldItem) {
+        result.added.push(newItem);
+        // IF THE OLDITEM EXIST CHECK IF CHANGE FROM OLDER ONE.
+      } else if (isObjectChanged(oldItem, newItem)) {
+        result.modified.push({
+          old: oldItem,
+          new: newItem,
+        });
+      }
+    }
+
+    // 2) FIND DELETED ITEM.
+    for (const oldItem of oldStages) {
+      const newItem = newStages.find(
+        (newI) => newI._id?.toString() === oldItem._id?.toString(),
+      );
+      // IF NEWITEM DOSE NOT EXIST IT MEANS DELETE FROM STAGES.
+      if (!newItem) {
+        result.removed.push(oldItem);
+      }
+    }
+
+    return result;
+  }
+  // // ==================== COMPARE STAGE OBJECTS ====================
 
   // // ==================== DELETE TASK FROM TASK COLLECTIONS AND UPDATE PROJECT ====================
   // static async deleteTaskAndSync(
