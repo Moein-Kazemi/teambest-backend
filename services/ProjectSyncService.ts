@@ -168,7 +168,7 @@ module.exports = class ProjectSyncService {
       } else if (result.modified.length !== 0) {
         return next(
           new AppError(
-            "در این مرحله شما نمیتوانید استیچ های قبلی را تغییر دهید . فقط میتوانید استیج های قبلی را حذف یا استیج جدید ایجاد کنید.",
+            "In this level you cant modified previouse stages. but you can add or delete stages",
             400,
           ),
         );
@@ -216,26 +216,28 @@ module.exports = class ProjectSyncService {
 
     return result;
   }
-  // // ==================== COMPARE STAGE OBJECTS ====================
-
   // // ==================== DELETE TASK FROM TASK COLLECTIONS AND UPDATE PROJECT ====================
-  // static async deleteTaskAndSync(
-  //   taskId: string,
-  //   next: NextFunction,
-  // ): Promise<TaskDocument | void> {
-  //   const task = await Task.findById(taskId);
-  //   if (!task) return next(new AppError("تسک مورد نظر پیدا نشد.", 404));
+  static async deleteProjectAndSync(
+    projectId: string,
+    next: NextFunction,
+  ): Promise<ProjectDocument | void> {
+    //  FIND DELETE PROJECT
+    const deleteProject: ProjectDocument = await Project.findById(projectId);
+    const taskIds: string[] = [];
 
-  //   // 1) delete from project
-  //   await Project.updateOne(
-  //     { "stages.taskAssignments.taskId": taskId },
-  //     {
-  //       $pull: {
-  //         "stages.$[].taskAssignments": { taskId: new Types.ObjectId(taskId) },
-  //       },
-  //     },
-  //   );
+    // FIND TASKID FOR DELETE
+    for (const stage of deleteProject.stages) {
+      for (const task of stage.taskAssignments) {
+        taskIds.push(task.taskId.toString());
+      }
+    }
 
-  //   // 2) Delete Task
-  //   return await Task.findByIdAndDelete(taskId);
+    // DELETE TASKS THAT INSIDE THE PROJECT
+    for (const taskId of taskIds) {
+      await TaskSyncService.deleteTaskAndSync(taskId, next);
+    }
+
+    // DELETE PROJECT
+    return await Project.findByIdAndDelete(projectId);
+  }
 };

@@ -3,7 +3,7 @@ import { ITask } from "../interfaces/taskDocument";
 
 async function testPostTour(
   url: string,
-  data: { projectData: IProject; taskData: ITask[] },
+  data: { projectData: IProject; tasksData: ITask[] },
 ) {
   try {
     const response = await fetch(url, {
@@ -31,59 +31,59 @@ async function testPostTour(
   }
 }
 
-const newProject: { projectData: IProject; taskData: ITask[] } = {
+const newProject: { projectData: IProject; tasksData: ITask[] } = {
   projectData: {
-    name: "دیجیتال مارکتینگ جین شاپ",
+    name: "دیجیتال مارکتینگ دیوید جونز",
     description:
-      "انقلابی در فروش اینترنتی جین شاپ و رساندن فروش آن از صفر به مثبت 100 قلم در ماه.",
+      "شروع به درآمد در واحد مارکتنیگ دیوید جونز و رسیدن به درآمد های اولیه در طی 6 ماه.",
     teamId: "69df5fc47621324e98a37b93",
     ownerId: "69df5fc47621324e98a37b90",
     stages: [
       {
-        name: "طراحی سایت جین شاپ",
+        name: "طراحی سایت دیوید جونز",
         order: 1,
         taskAssignments: [
           {
-            taskTitle: "ایجاد سایت ورد پرسی",
+            taskTitle: "ایجاد سایت",
             assigneeId: "69df5fc47621324e98a37b88",
-            assigneeName: "مبینا غلامی",
+            assigneeName: "معین کاظمی",
           },
         ],
       },
       {
-        name: "مدیریت اینستاگرام جین شاپ",
+        name: "مدیریت پیج دیوید جونز",
         order: 2,
         taskAssignments: [
           {
-            taskTitle: "پست و استوری روزانه",
+            taskTitle: "پست و استوری روزانه برای دیوید جونز",
             assigneeId: "69df5fc47621324e98a37b89",
-            assigneeName: "علی شاهینی",
+            assigneeName: "غزاله میر آبادی",
           },
         ],
       },
     ],
   },
-  taskData: [
+  tasksData: [
     {
       projectId: "",
       stageId: "",
-      title: "ایجاد سایت ورد پرسی",
+      title: "ایجاد سایت",
       description:
         "ساخت سایت ورد پرس با استفاده از وودمارت و ووکامرس و المنتور به شکلی بسیار زیبا.",
       assigneeTo: {
         assigneeId: "69df5fc47621324e98a37b52",
-        assigneeName: "مبینا غلامی",
+        assigneeName: "معین کاظمی",
       },
     },
     {
       projectId: "",
       stageId: "",
-      title: "پست و استوری روزانه",
+      title: "پست و استوری روزانه برای دیوید جونز",
       description:
-        "روزانه باید یک پست و چهار استوری برای پیج جین شاپ گذاشته شود.",
+        "روزانه باید یک پست و چهار استوری برای پیج دیوید جونز گذاشته شود.",
       assigneeTo: {
         assigneeId: "69df5fc47621324e98a37b40",
-        assigneeName: "علی شاهینی",
+        assigneeName: "غزاله میر آبادی",
       },
     },
   ],

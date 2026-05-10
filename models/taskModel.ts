@@ -20,12 +20,11 @@ const taskSchema = new Schema<ITask>(
       required: [true, "Task must have title."],
       trim: true,
       minlength: [3, "your task must be more than 3 charectors."],
-      unique: [true, "A task must have unique title."],
     },
     description: {
       type: String,
-      required: [true, "Task must have dscription."],
       trim: true,
+      default: "",
     },
     assigneeTo: {
       type: assigneeSchema,

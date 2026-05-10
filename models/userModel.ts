@@ -5,7 +5,7 @@ Users
 ├── email
 ├── password (hash)
 ├── role (admin/member)
-├── teamIds[]
+├── teamId
 ├── avatar
 └── createdAt
 */

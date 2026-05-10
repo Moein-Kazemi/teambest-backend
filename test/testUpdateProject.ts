@@ -31,9 +31,7 @@ async function testUpdateProject(
 }
 const updateData: { projectData: Partial<IProject>; taskData?: ITask[] } = {
   projectData: {
-    name: "تست نام 2",
-    description: "تست توضیحات 2",
-    teamId: "69df5fc47621324e98a37b50",
+    name: "دیجیتال مارکتینگ فروشگاه خانه پوشاک",
   },
 };
 

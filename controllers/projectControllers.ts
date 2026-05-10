@@ -34,7 +34,7 @@ exports.createProject = catchAsyncFn(
     const project = await ProjectSyncService.createProjectAndSync(
       req.body.projectData.teamId,
       req.body.projectData,
-      req.body.taskData,
+      req.body.tasksData,
       next,
     );
 
@@ -88,9 +88,21 @@ exports.updateProject = catchAsyncFn(
 
 exports.deleteProject = catchAsyncFn(
   async (req: Request, res: Response, next: NextFunction) => {
-    res.status(200).json({
+    let deleteProject;
+
+    if (typeof req.params.id === "string") {
+      deleteProject = await ProjectSyncService.deleteProjectAndSync(
+        req.params.id,
+        next,
+      );
+    }
+
+    if (!deleteProject) {
+      return next(new AppError("پروژه مورد نظر برای حذف شدن پیدا نشد.", 404));
+    }
+    res.status(204).json({
       status: "success",
-      data: {},
+      data: null,
     });
   },
 );
