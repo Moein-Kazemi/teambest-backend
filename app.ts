@@ -44,10 +44,10 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 /////// ROUTES
 app.use("/api/v1/tasks", tasksRouter); // ✅
 app.use("/api/v1/projects", projectsRouter); // proccessing...
-app.use("/api/v1/users", usersRouter);
+app.use("/api/v1/users", usersRouter); // proccessing...
+app.use("/api/v1/teams", teamsRouter);
 app.use("/api/v1/messages", messagesRouter);
 app.use("/api/v1/notes", notesRouter);
-app.use("/api/v1/teams", teamsRouter);
 
 // INVALID ROUTE ERROR HANDLER
 

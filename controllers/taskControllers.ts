@@ -63,10 +63,6 @@ exports.createTask = catchAsyncFn(
 
 exports.updateTask = catchAsyncFn(
   async (req: Request, res: Response, next: NextFunction) => {
-    // const updateTask = await Task.findByIdAndUpdate(req.params.id, req.body, {
-    //   new: true,
-    //   runValidators: true,
-    // });
     let updateTask;
     if (typeof req.params.id === "string") {
       updateTask = await TaskSyncService.updateTaskAndSync(
