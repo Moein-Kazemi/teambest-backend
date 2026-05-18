@@ -21,7 +21,7 @@ const handleCastErrorDb = (err: CastError): AppErrorProp => {
 // HANDLE DUPLICATE ERROR FILEDS
 const handleDublicateFieldDb = (err: MongoError): AppErrorProp => {
   const value = err.errmsg.match(/(["'])(\\?.)*?\1/)[0];
-  const message = `Duplicate field value : ${value}. please use another value.`;
+  const message = `${value} تکراری است. لطفا یک ${value} دیگر وارد کنید.`;
   return new AppError(message, 400);
 };
 

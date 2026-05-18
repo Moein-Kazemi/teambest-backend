@@ -16,6 +16,7 @@ export interface IUser {
     condidPassword: string,
     userPassword: string,
   ) => Promise<boolean>;
+  isModifiedPasswordAfterToken?: (jwtTimeStamp: string) => boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }

@@ -9,11 +9,15 @@ const userSchema: Schema<IUser> = new Schema<IUser>(
     name: {
       type: String,
       required: [true, "نام کاربر الزامی است"],
+      minlength: [3, "نام باید حداقل سه کارکتر باشد."],
+      maxlength: [10, "نام نباید بیش از 10 کارکتر باشد."],
       trim: true,
     },
     family: {
       type: String,
       required: [true, "نام خانوادگی کاربر الزامی است"],
+      minlength: [3, "نام خانوادگی باید حداقل سه کارکتر باشد."],
+      maxlength: [10, "نام خانوادگی نباید بیش از 10 کارکتر باشد."],
       trim: true,
     },
     phone: {
@@ -46,7 +50,6 @@ const userSchema: Schema<IUser> = new Schema<IUser>(
     },
     passwordChangedAt: {
       type: Date,
-      default: new Date(),
     },
     jobTitle: {
       type: String,
@@ -104,6 +107,20 @@ userSchema.methods.isCorrectPassword = async function (
   userPassword,
 ) {
   return await bcrypt.compare(condidPassword, userPassword);
+};
+
+userSchema.methods.isModifiedPasswordAfterToken = function (
+  jwtTimeStamp: string,
+) {
+  if (this.passwordChangedAt) {
+    const changePasswordTime = Math.floor(
+      this.passwordChangedAt.getTime() / 1000,
+    );
+    console.log(changePasswordTime, jwtTimeStamp);
+    return changePasswordTime > Number(jwtTimeStamp);
+  }
+  console.log("password not changed");
+  return false;
 };
 
 // 2) CREATE USER MODAL
