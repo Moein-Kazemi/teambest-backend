@@ -22,11 +22,6 @@ module.exports = class TaskSyncService {
     taskData: ITask,
     next: NextFunction,
   ): Promise<TaskDocument | void> {
-    // CHECK IF NOT EXIST
-    const taskExist = await Task.find({ title: taskData.title });
-    if (taskExist.length !== 0)
-      return next(new AppError("تسک از قبل وجود دارد", 400));
-
     // 1) CREATE TASK
     const task: TaskDocument = await Task.create(taskData);
 

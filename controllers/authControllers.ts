@@ -1,8 +1,9 @@
 const catchAsyncFn = require("./../utils/catchAsyncFn");
 const jwt = require("jsonwebtoken");
 const AppError = require("./../utils/classes/AppError");
+const User = require("./../models/userModel");
+
 import { Request, Response, NextFunction } from "express";
-import { User } from "../models/userModel";
 import { UserDocument } from "../interfaces/userDocument";
 import { promisify } from "util";
 
@@ -56,23 +57,31 @@ exports.signup = catchAsyncFn(
       family: newUser.family,
       role: newUser.role,
       jobTitle: newUser.jobTitle,
-      teamId: newUser.teamId.toString(),
+      teamId: newUser?.teamId?.toString() || "",
     });
 
-    const isProduction = process.env.NODE_ENV === "production";
+    // const isProduction = process.env.NODE_ENV === "production";
 
     // STORE TOKEN IN THE COOKIE
-    res.cookie("auth_token", token, {
-      httpOnly: true, // secure againts xss atack
-      secure: isProduction, //process.env.NODE_ENV === "production", // change to production in deploy
-      sameSite: isProduction ? "none" : "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // store 7 days
-    });
+    // res.cookie("auth_token", token, {
+    //   httpOnly: true, // secure againts xss atack
+    //   secure: isProduction, //process.env.NODE_ENV === "production", // change to production in deploy
+    //   sameSite: isProduction ? "none" : "lax",
+    //   maxAge: 7 * 24 * 60 * 60 * 1000, // store 7 days
+    // });
 
     res.status(201).json({
       status: "success",
+      token,
       data: {
-        user: newUser,
+        user: {
+          id: newUser._id,
+          name: newUser.name,
+          family: newUser.family,
+          role: newUser.role,
+          jobTitle: newUser.jobTitle,
+          teamId: newUser.teamId || "",
+        },
       },
     });
 
@@ -117,30 +126,31 @@ exports.login = catchAsyncFn(
       return next(new AppError("شماره تماس یا رمز عبور اشتباه است.", 401));
     }
 
-    // 4) CREATE TOKEN AND STOER TO DB
-    const token = createToken({
+    const userSession = {
       id: user._id.toString(),
       name: user.name,
       family: user.family,
       role: user.role,
       jobTitle: user.jobTitle,
-      teamId: user.teamId.toString(),
-    });
+      teamId: user?.teamId?.toString() || "",
+    };
+    // 4) CREATE TOKEN AND STOER TO DB
+    const token = createToken(userSession);
 
-    const isProduction = process.env.NODE_ENV === "production";
-    res.cookie("auth_token", token, {
-      httpOnly: true, // secure againts xss atack
-      secure: isProduction, //process.env.NODE_ENV === "production", // change to production in deploy
-      sameSite: isProduction ? "none" : "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // store 7 days
-    });
+    // const isProduction = process.env.NODE_ENV === "production";
+    // res.cookie("auth_token", token, {
+    //   httpOnly: true, // secure againts xss atack
+    //   secure: isProduction, //process.env.NODE_ENV === "production", // change to production in deploy
+    //   sameSite: isProduction ? "none" : "lax",
+    //   maxAge: 7 * 24 * 60 * 60 * 1000, // store 7 days
+    // });
 
     // 5) SEND RESPONSE
     res.status(200).json({
       status: "success",
-      // token,
+      token,
       data: {
-        user,
+        user: userSession,
       },
     });
   },
@@ -195,6 +205,7 @@ exports.restricTo = (...roles: string[]) => {
     if (!roles.includes(req.user.role)) {
       return next(new AppError("شما به این به این روت دسترسی ندارید."));
     }
+    console.log("user allow");
     next();
   };
 };

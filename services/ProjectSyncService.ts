@@ -25,11 +25,6 @@ module.exports = class ProjectSyncService {
     tasksData: ITask[],
     next: NextFunction,
   ): Promise<ProjectDocument | void> {
-    // 1) CHECK IF THE PROJECT EXISTS SHOW ERROR
-    const alreadyProject = await Project.find({ name: projectData.name });
-    if (alreadyProject.length !== 0)
-      return next(new AppError("پروژه مورد نظر از قبل ایجاد شده است.", 400));
-
     // 2) CHECK IF THE PROJECT DON'T HAVE STAGES SHOW ERROR
     if (projectData.stages.length === 0)
       return next(
@@ -228,7 +223,7 @@ module.exports = class ProjectSyncService {
     // FIND TASKID FOR DELETE
     for (const stage of deleteProject.stages) {
       for (const task of stage.taskAssignments) {
-        taskIds.push(task.taskId.toString());
+        taskIds.push(task?.taskId?.toString());
       }
     }
 

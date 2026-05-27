@@ -1,8 +1,9 @@
+const catchAsyncFn = require("./../utils/catchAsyncFn");
+const User = require("./../models/userModel");
+
 import { Request, Response, NextFunction } from "express";
 import { UserDocument } from "../interfaces/userDocument";
-import { User } from "../models/userModel";
 import ApiFeatures from "../utils/classes/ApiFeatures";
-const catchAsyncFn = require("./../utils/catchAsyncFn");
 
 //✅
 exports.getAllUsers = catchAsyncFn(

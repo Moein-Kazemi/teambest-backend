@@ -37,7 +37,6 @@ const projectSchema = new Schema<IProject>(
       type: String,
       required: true,
       trim: true,
-      unique: [true, "نام پروژه نباید تکراری باشد."],
     },
     description: { type: String, default: "" },
     teamId: {

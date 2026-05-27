@@ -19,11 +19,7 @@ projectsRouter
     //  restricTo("member", "manager"),
     getAllProject,
   )
-  .post(
-    // checkProtectedRoute,
-    //  restricTo("manager"),
-    createProject,
-  );
+  .post(checkProtectedRoute, restricTo("manager"), createProject);
 
 projectsRouter
   .route("/:id")

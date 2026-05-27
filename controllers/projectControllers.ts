@@ -2,6 +2,7 @@ const catchAsyncFn = require("./../utils/catchAsyncFn");
 const Project = require("./../models/projectModel");
 const ProjectSyncService = require("./../services/ProjectSyncService");
 const AppError = require("./../utils/classes/AppError");
+
 import ApiFeatures from "../utils/classes/ApiFeatures";
 
 // TYPE CHECKER

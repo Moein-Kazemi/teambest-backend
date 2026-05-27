@@ -23,7 +23,7 @@ const userSchema: Schema<IUser> = new Schema<IUser>(
     phone: {
       type: String,
       required: [true, "شماره تلفن الزامی است"],
-      unique: true,
+      unique: [true, "شماره تماس شما با شماره تماس شخص دیگری یکسان است."],
       validate: {
         validator: function (val: string) {
           return validator.isMobilePhone(val, "fa-IR");
@@ -124,4 +124,6 @@ userSchema.methods.isModifiedPasswordAfterToken = function (
 };
 
 // 2) CREATE USER MODAL
-export const User = model<UserDocument>("User", userSchema, "users");
+const User = model<UserDocument>("User", userSchema, "users");
+
+module.exports = User;
