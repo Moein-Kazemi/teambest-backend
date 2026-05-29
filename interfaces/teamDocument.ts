@@ -4,6 +4,8 @@ import { Document, Schema } from "mongoose";
 export interface ITeamMember {
   memberId: Schema.Types.ObjectId | string;
   memberName: string;
+  memberAvatar: string;
+  memberJobTitle: string;
 }
 
 // ==================== ITeamProject ====================

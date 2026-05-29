@@ -33,6 +33,14 @@ const teamMemberSchema = new Schema<ITeamMember>(
       type: String,
       required: [true, "اعضای تیم باید نام داشته باشند"],
     },
+    memberAvatar: {
+      type: String,
+      required: [true, "اعضای تیم باید آواتار داشته باشند"],
+    },
+    memberJobTitle: {
+      type: String,
+      required: [true, "اعضای تیم باید عنوان شغلی داشته باشند"],
+    },
   },
   { _id: false },
 );

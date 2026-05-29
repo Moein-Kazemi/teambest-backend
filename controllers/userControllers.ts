@@ -36,17 +36,35 @@ exports.createUser = catchAsyncFn(
 );
 exports.getUser = catchAsyncFn(
   async (req: Request, res: Response, next: NextFunction) => {
-    res.status(500).json({
-      status: "Error",
-      message: "This route dose not define in the server.",
+    console.log(req.headers);
+    let user;
+    if (typeof req.params.id === "string") {
+      user = await User.findById(req.params.id);
+    } else {
+      next(new AppError("آیدی وارد شده معتبر نیست.", 400));
+    }
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        user,
+      },
     });
   },
 );
 exports.updataUser = catchAsyncFn(
   async (req: Request, res: Response, next: NextFunction) => {
-    res.status(500).json({
-      status: "Error",
-      message: "This route dose not define in the server.",
+    let user;
+    if (typeof req.params.id === "string") {
+      user = await User.findByIdAndUpdate(req.params.id, req.body);
+    } else {
+      next(new AppError("آیدی وارد شده معتبر نیست.", 400));
+    }
+    res.status(200).json({
+      status: "success",
+      data: {
+        user,
+      },
     });
   },
 );

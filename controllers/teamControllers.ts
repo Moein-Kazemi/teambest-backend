@@ -43,7 +43,7 @@ exports.createTeam = catchAsyncFn(
     );
 
     res.status(201).json({
-      message: "success",
+      status: "success",
       data: {
         team: newTeam,
       },

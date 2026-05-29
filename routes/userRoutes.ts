@@ -15,12 +15,16 @@ const {
 // ALL INFO ABOUT USER
 usersRoter
   .route("/")
-  .get(checkProtectedUsersRoute, restricToUsers("manager"), getAllUsers)
+  .get(getAllUsers)
   .post(checkProtectedUsersRoute, restricToUsers("manager"), createUser);
 usersRoter
   .route("/:id")
-  .get(checkProtectedUsersRoute, restricToUsers("manager"), getUser)
-  .patch(checkProtectedUsersRoute, restricToUsers("manager"), updataUser)
+  .get(getUser)
+  .patch(
+    checkProtectedUsersRoute,
+    restricToUsers("manager", "user", "member"),
+    updataUser,
+  )
   .delete(checkProtectedUsersRoute, restricToUsers("manager"), deleteUser);
 
 // SIGN UP AND LOGIN

@@ -35,7 +35,7 @@ module.exports = class TeamSyncService {
     // SELECT ROLE = MEMEBER IN THE DB
     const eligibleUsers: UserDocument[] = await User.find(
       filter,
-      "_id name family",
+      "_id name family avatar jobTitle",
     ).lean();
 
     // SELECT VALID IDS IN THE DB
@@ -53,6 +53,8 @@ module.exports = class TeamSyncService {
     const validMembers = eligibleUsers.map((user) => ({
       memberId: user._id,
       memberName: `${user.name} ${user.family}`,
+      memberAvatar: user.avatar,
+      memberJobTitle: user.jobTitle,
     }));
 
     // NEW TEAM DATA
