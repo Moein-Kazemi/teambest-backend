@@ -4,6 +4,7 @@ const TaskSyncService = require("./TaskSyncService");
 
 // MODELS
 const Project = require("./../models/projectModel");
+const Team = require("./../models/teamModel");
 // const Task = require("./../models/taskModel");
 
 // TYPE CHECKER
@@ -58,6 +59,27 @@ module.exports = class ProjectSyncService {
       }
     }
 
+    // 5) UPDATE TEAM
+    const updatedTeam = await Team.findByIdAndUpdate(
+      project.teamId,
+      {
+        $push: {
+          projects: {
+            projectId: project._id.toString(),
+            projectName: project.name,
+          },
+        },
+      },
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
+    if (!updatedTeam) {
+      return next(
+        new AppError("پروژه ساخته شد ولی آپدیت تیم به درستی انجام نشد.", 400),
+      );
+    }
     return project;
     // 5) ADD PROJECT REFERENCE TO TEAM
     // await Team.findByIdAndUpdate(teamId, {
@@ -230,6 +252,18 @@ module.exports = class ProjectSyncService {
     // DELETE TASKS THAT INSIDE THE PROJECT
     for (const taskId of taskIds) {
       await TaskSyncService.deleteTaskAndSync(taskId, next);
+    }
+
+    // DELETE PROJECT INSIDE TEAM
+    const team = await Team.findByIdAndUpdate(deleteProject.teamId, {
+      $pull: {
+        projects: {
+          projectId: deleteProject._id.toString(),
+        },
+      },
+    });
+    if (!team) {
+      return next(new AppError("تیم مورد نظر بعد از حذف تیم آپدیت نشد.", 400));
     }
 
     // DELETE PROJECT
