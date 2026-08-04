@@ -12,35 +12,8 @@ const {
 
 const tasksRouter = require("express").Router();
 
-tasksRouter
-  .route("/")
-  .get(
-    // checkProtectedTasksRoute,
-    // restricToTasks("member", "manager"),
-    getAllTasks,
-  )
-  .post(
-    // checkProtectedTasksRoute,
-    //  restricToTasks("manager"),
-    createTask,
-  );
+tasksRouter.route("/").get(getAllTasks).post(createTask);
 
-tasksRouter
-  .route("/:id")
-  .get(
-    // checkProtectedTasksRoute,
-    //  restricToTasks("member", "manager"),
-    getTask,
-  )
-  .patch(
-    // checkProtectedTasksRoute,
-    //  restricToTasks("manager"),
-    updateTask,
-  )
-  .delete(
-    // checkProtectedTasksRoute,
-    //  restricToTasks("manager"),
-    deleteTask,
-  );
+tasksRouter.route("/:id").get(getTask).patch(updateTask).delete(deleteTask);
 
 module.exports = tasksRouter;

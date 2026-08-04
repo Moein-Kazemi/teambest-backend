@@ -109,7 +109,6 @@ exports.login = catchAsyncFn(
         ),
       );
     }
-
     // 2) CHECK IF THE PHONE BELONG TO THE USER
     const user = await User.findOne({ phone }).select("+password");
     if (!user) {
@@ -125,7 +124,6 @@ exports.login = catchAsyncFn(
     if (!user || !correctPassword) {
       return next(new AppError("شماره تماس یا رمز عبور اشتباه است.", 401));
     }
-
     const userSession = {
       id: user._id.toString(),
       name: user.name,
@@ -136,14 +134,6 @@ exports.login = catchAsyncFn(
     };
     // 4) CREATE TOKEN AND STOER TO DB
     const token = createToken(userSession);
-
-    // const isProduction = process.env.NODE_ENV === "production";
-    // res.cookie("auth_token", token, {
-    //   httpOnly: true, // secure againts xss atack
-    //   secure: isProduction, //process.env.NODE_ENV === "production", // change to production in deploy
-    //   sameSite: isProduction ? "none" : "lax",
-    //   maxAge: 7 * 24 * 60 * 60 * 1000, // store 7 days
-    // });
 
     // 5) SEND RESPONSE
     res.status(200).json({
