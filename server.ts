@@ -1,8 +1,8 @@
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 
-// TYPE CHECKER
-import { ConnectOptions } from "mongoose";
+// // TYPE CHECKER
+// import { ConnectOptions } from "mongoose";
 
 // unchaght Exeption for sync code that really problem in the app
 process.on("uncaughtException", (err: Error) => {
@@ -17,19 +17,19 @@ const app = require("./app");
 
 // CONNECT TO MONGO DB
 mongoose
-  .connect(process.env.DATABASE_LOCAL, {
+  .connect(process.env.DATABASE_URL, {
     useNewUrlParser: true,
     useCreateIndex: true,
     useUnifiedTopology: true,
     useFindAndModify: false,
   })
-  .then((con: ConnectOptions) => {
+  .then(() => {
     console.log("Successfuly connect to DB");
   });
 
 // START THE SERVER
 const port = process.env.PORT || 5000;
-const server = app.listen(port, () => {
+const server = app.listen(port, "0.0.0.0", () => {
   console.log(`the server listening on port ${port}`);
 });
 

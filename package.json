@@ -7,8 +7,9 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon ./server.ts",
-    "prod": "cross-env NODE_ENV=production nodemon server.ts",
+    "dev": "nodemon  ./server.ts",
+    "build": "tsc",
+    "start": "node ./dist/server.js",
     "debug": "cross-env NODE_ENV=production nodemon --exec \"ts-node server.ts\""
   },
   "dependencies": {

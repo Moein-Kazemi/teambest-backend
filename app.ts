@@ -26,7 +26,7 @@ if (process.env.NODE_ENV === "development") {
 // CONECT TO FRONT END
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: process.env.CLIENT_URL,
     credentials: true,
   }),
 );
